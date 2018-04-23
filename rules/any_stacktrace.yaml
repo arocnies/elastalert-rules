@@ -9,7 +9,7 @@ filter:
       message: "stacktrace"
 
 alert:
-  - "slack"
+- "slack"
 slack_webhook_url: "https://hooks.slack.com/services/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"
 
 # Bug [#1431] is fixed but not pushed to PyPI.
