@@ -1,0 +1,11 @@
+name: Any-Stacktrace
+type: any
+index: project.omar-dev.*
+timeframe:
+    hours: 1
+filter:
+- term:
+    message: "stacktrace"
+alert:
+- "slack"
+slack_webhook_url: "https://hooks.slack.com/services/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"
