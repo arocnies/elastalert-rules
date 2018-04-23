@@ -51,7 +51,7 @@ node("") {
                               passwordVariable: 'OPENSHIFT_PASSWORD']]) {
                 sh """
                 echo "Creating ${CONFIG_MAP_NAME} ConfigMap"
-                oc create configmap ${CONFIG_MAP_NAME} --from-file=rules/
+                oc create configmap ${CONFIG_MAP_NAME} --from-file=./rules/
                 oc describe configmap ${CONFIG_MAP_NAME}
                 """
             }
