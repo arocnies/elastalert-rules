@@ -34,7 +34,7 @@ node("") {
         stage("Delete Config Map") {
             try {
                 sh """
-                echo "Deleting current config-repo ConfigMap"
+                echo "Deleting current ${CONFIG_MAP_NAME} ConfigMap"
                 oc delete configmap ${CONFIG_MAP_NAME}
                 """
             }
@@ -50,8 +50,8 @@ node("") {
                               usernameVariable: 'OPENSHIFT_USERNAME',
                               passwordVariable: 'OPENSHIFT_PASSWORD']]) {
                 sh """
-                echo "Creating config-repo ConfigMap"
-                oc create configmap ${CONFIG_MAP_NAME} --from-file=config-repo/
+                echo "Creating ${CONFIG_MAP_NAME} ConfigMap"
+                oc create configmap ${CONFIG_MAP_NAME} --from-file=${CONFIG_MAP_NAME}/
                 oc describe configmap ${CONFIG_MAP_NAME}
                 """
             }
@@ -59,7 +59,7 @@ node("") {
     }
     catch (e) {
         println "ERROR: ${e} "
-        println "Failed to delete/create config-repo ConfigMap"
+        println "Failed to delete/create ${CONFIG_MAP_NAME} ConfigMap"
         currentBuild.result = "FAILED"
     }
 
