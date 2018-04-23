@@ -1,0 +1,69 @@
+//==================================================================================================
+// Environment varialbes that MUST be passed in by Jenkins:
+//    OSSIM_GIT_BRANCH: The tag of the branch to be built. Typically dev or master.
+//
+// Environment variables that MUST be set in the Jenkins global environment (manage jenkins -> configure system -> environment varaibles)
+//    OPENSHIFT_URL: The OpenShift URL to use to log in
+//    OPENSHIFT_USERNAME: The user to use logging into the OpenShift command line
+//    OPENSHIFT_PASSWORD: The password to use logging into the OpenShift command line
+//==================================================================================================
+
+node("") {
+    env.WORKSPACE = pwd()
+    String appName = "elastalert-rules"
+    try {
+
+        stage("Checkout") {
+            dir(appName) {
+                git branch: "${OSSIM_GIT_BRANCH}", url: "${GIT_PRIVATE_SERVER_URL}/${appName}.git", credentialsId: "${GIT_CREDENTIALS_ID}"
+            }
+        }
+
+        stage("OC Login") {
+            withCredentials([[$class          : 'UsernamePasswordMultiBinding',
+                              credentialsId   : 'dockerCredentials',
+                              usernameVariable: 'OPENSHIFT_USERNAME',
+                              passwordVariable: 'OPENSHIFT_PASSWORD']]) {
+                sh """
+                oc login --insecure-skip-tls-verify ${OPENSHIFT_URL} -u ${OPENSHIFT_USERNAME} -p ${OPENSHIFT_PASSWORD}
+                oc project ${OPENSHIFT_PROJECT_NAME}
+                """
+            }
+        }
+
+        stage("Delete Config Map") {
+            try {
+                sh """
+                echo "Deleting current config-repo ConfigMap"
+                oc delete configmap ${CONFIG_MAP_NAME}
+                """
+            }
+            catch (e) {
+                println "${e}"
+                println "Could not delete ConfigMap with name ${CONFIG_MAP_NAME}, creating new one anyways"
+            }
+        }
+
+        stage("Create Config Map") {
+            withCredentials([[$class          : 'UsernamePasswordMultiBinding',
+                              credentialsId   : 'dockerCredentials',
+                              usernameVariable: 'OPENSHIFT_USERNAME',
+                              passwordVariable: 'OPENSHIFT_PASSWORD']]) {
+                sh """
+                echo "Creating config-repo ConfigMap"
+                oc create configmap ${CONFIG_MAP_NAME} --from-file=config-repo/
+                oc describe configmap ${CONFIG_MAP_NAME}
+                """
+            }
+        }
+    }
+    catch (e) {
+        println "ERROR: ${e} "
+        println "Failed to delete/create config-repo ConfigMap"
+        currentBuild.result = "FAILED"
+    }
+
+    stage("Clean Workspace") {
+        step([$class: 'WsCleanup'])
+    }
+}
