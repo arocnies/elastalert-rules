@@ -3,10 +3,13 @@ type: frequency
 index: project.omar-dev.*
 num_events: 5
 timeframe:
-    minutes: 1
+    minutes: 5
 filter:
-  - term:
-      user: "Aaron Nies"
+- term:
+    user: "Aaron Nies"
 alert:
 - "slack"
+- "sns"
+
 slack_webhook_url: "https://hooks.slack.com/services/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"
+sns_topic_arn: "arn:aws:sns:us-east-1:320588532383:elastalert"
