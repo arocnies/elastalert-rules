@@ -8,7 +8,13 @@ filter:
 - query:
     query_string:
       query: kubernetes.container_name:"omar-sqs-stager" AND message:/error/
+- query:
+    query_string:
+      query: kubernetes.labels.app:"omar-sqs-stager-app" AND _exists_:httpStatus AND httpStatus:>=400
 
 alert:
 - "slack"
+- "sns"
+
 slack_webhook_url: "https://hooks.slack.com/services/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"
+sns_topic_arn: "arn:aws:sns:us-east-1:320588532383:ingest_failures"
