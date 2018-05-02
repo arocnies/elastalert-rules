@@ -14,14 +14,8 @@ node("") {
     try {
 
         stage("Checkout") {
-            if ("${GIT_CREDENTIALS_ID}" != "") {
-                dir(appName) {
-                    git branch: "${OSSIM_GIT_BRANCH}", url: "${GIT_PRIVATE_SERVER_URL}/${appName}.git", credentialsId: "${GIT_CREDENTIALS_ID}"
-                }
-            } else {
-                dir(appName) {
-                    git branch: "${OSSIM_GIT_BRANCH}", url: "${GIT_PRIVATE_SERVER_URL}/${appName}.git"
-                }
+            dir(appName) {
+                git branch: "${OSSIM_GIT_BRANCH}", url: "${GIT_PRIVATE_SERVER_URL}/${appName}.git"
             }
         }
 
